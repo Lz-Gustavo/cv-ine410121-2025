@@ -31,7 +31,7 @@ def main():
     hsv_p = np.array([16, 50, 3])
     print('OpenCV range value:', percentual_to_opencv(hsv_p))
 
-    rgb = np.array([40, 28, 18])
+    rgb = np.array([190, 145, 84])
     print('HSV:', rgb_to_opencvhsv(rgb))
 
 
