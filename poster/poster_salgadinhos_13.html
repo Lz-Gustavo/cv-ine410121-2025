@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contagem de Salgadinhos - Poster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Kufam:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-soft: #ffce86;
+            --color-accent: #ff9e00;
+            --color-medium: #ca7c00;
+            --color-dark: #8e5500;
+            --color-darkest: #452700;
+            --column-width: 400px;
+            --text-scale: 1;
+            --title-scale: 1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            color: #000;
+        }
+
+        /* Control Panel */
+        #controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: 2px solid var(--color-accent);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 320px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        #controls h3 {
+            color: var(--color-darkest);
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-bottom: 2px solid var(--color-soft);
+            padding-bottom: 8px;
+        }
+
+        #controls label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-dark);
+        }
+
+        #controls input[type="range"] {
+            width: 100%;
+            accent-color: var(--color-accent);
+        }
+
+        #controls .value-display {
+            font-size: 11px;
+            color: var(--color-medium);
+            text-align: right;
+        }
+
+        #controls select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid var(--color-soft);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        #controls button {
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        #controls button:hover {
+            background: var(--color-medium);
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--color-soft);
+        }
+
+        .image-sliders {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--color-soft);
+            border-radius: 6px;
+            padding: 10px;
+            background: #fefefe;
+        }
+
+        .image-slider-item {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--color-soft);
+        }
+
+        .image-slider-item:last-child {
+            border-bottom: none;
+        }
+
+        .image-slider-label {
+            font-size: 10px;
+            color: var(--color-darkest);
+            word-break: break-all;
+        }
+
+        /* Poster Styles */
+        #poster {
+            background: white;
+            width: fit-content;
+            margin: 0 auto;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .poster-columns {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .column {
+            width: var(--column-width);
+            min-width: var(--column-width);
+            max-width: var(--column-width);
+        }
+
+        .content-block {
+            margin-bottom: 25px;
+            cursor: move;
+            transition: box-shadow 0.2s;
+        }
+
+        .content-block:hover {
+            box-shadow: 0 0 0 2px var(--color-soft);
+        }
+
+        .content-block.dragging {
+            opacity: 0.5;
+        }
+
+        /* Header spanning all columns */
+        .header-block {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--color-soft) 0%, white 100%);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .header-block img {
+            height: 120px;
+            width: auto;
+        }
+
+        .header-text {
+            text-align: center;
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .header-text .program {
+            font-size: calc(26px * var(--text-scale));
+            color: var(--color-darkest);
+            font-weight: 500;
+        }
+
+        .header-text .department {
+            font-size: calc(24px * var(--text-scale));
+            color: var(--color-dark);
+        }
+
+        /* Title Block */
+        .title-block {
+            text-align: center;
+            padding: 25px 20px;
+            background: white;
+            border-top: 4px solid var(--color-accent);
+            border-bottom: 4px solid var(--color-accent);
+            margin-bottom: 20px;
+        }
+
+        .title-block h1 {
+            font-family: 'Kufam', serif;
+            font-size: calc(28px * var(--title-scale));
+            color: var(--color-darkest);
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        .title-block .authors {
+            font-size: calc(15px * var(--text-scale));
+            color: var(--color-dark);
+            font-weight: 500;
+        }
+
+        .title-block .authors span {
+            display: inline-block;
+            margin: 0 15px;
+        }
+
+        /* Decorative bars */
+        .bar-decoration {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-soft), var(--color-accent), var(--color-soft), transparent);
+            margin: 15px 0;
+        }
+
+        .bar-thin {
+            height: 1px;
+            background: var(--color-soft);
+            margin: 10px 0;
+        }
+
+        /* Section headers */
+        h2 {
+            font-family: 'Kufam', serif;
+            font-size: calc(20px * var(--title-scale));
+            color: var(--color-darkest);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--color-accent);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: calc(16px * var(--title-scale));
+            color: var(--color-dark);
+            margin: 15px 0 10px;
+            padding-left: 10px;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        h4 {
+            font-size: calc(14px * var(--title-scale));
+            color: var(--color-medium);
+            margin: 12px 0 8px;
+        }
+
+        /* Text content */
+        p {
+            font-size: calc(13px * var(--text-scale));
+            line-height: 1.6;
+            color: #222;
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            font-size: calc(13px * var(--text-scale));
+            line-height: 1.5;
+            margin-left: 20px;
+            color: #222;
+        }
+
+        ul li {
+            margin-bottom: 4px;
+        }
+
+        /* Images */
+        .image-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-caption {
+            font-size: calc(12px * var(--text-scale));
+            color: var(--color-dark);
+            font-style: italic;
+            margin-top: 6px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .image-grid img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: calc(13px * var(--text-scale));
+            margin: 10px 0;
+        }
+
+        th {
+            background: var(--color-soft);
+            color: var(--color-darkest);
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--color-accent);
+        }
+
+        td {
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #fffbf5;
+        }
+
+        .table-title {
+            font-size: calc(13px * var(--text-scale));
+            font-weight: 600;
+            color: var(--color-darkest);
+            margin-bottom: 8px;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background: linear-gradient(135deg, #fffbf5 0%, white 100%);
+            border-left: 3px solid var(--color-accent);
+            padding: 12px 15px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .highlight-box strong {
+            color: var(--color-darkest);
+        }
+
+        /* Results highlight */
+        .results-highlight {
+            background: var(--color-soft);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .results-highlight h4 {
+            color: var(--color-darkest);
+            margin-top: 0;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--color-medium);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            color: var(--color-darkest);
+        }
+
+        /* Column width indicator */
+        .column-indicator {
+            background: var(--color-soft);
+            text-align: center;
+            padding: 4px;
+            font-size: 10px;
+            color: var(--color-darkest);
+            border-radius: 4px 4px 0 0;
+            opacity: 0.7;
+        }
+
+        /* Print styles */
+        @media print {
+            #controls {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            #poster {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Control Panel -->
+    <div id="controls">
+        <h3>🎛️ Poster Controls</h3>
+        
+        <div class="control-section">
+            <label>Column Width: <span id="colWidthVal">400</span>px</label>
+            <input type="range" id="colWidth" min="250" max="600" value="400">
+        </div>
+
+        <div class="control-section">
+            <label>Text Scale: <span id="textScaleVal">1.0</span>x</label>
+            <input type="range" id="textScale" min="1" max="10" step="0.1" value="1">
+            
+            <label>Title Scale: <span id="titleScaleVal">1.0</span>x</label>
+            <input type="range" id="titleScale" min="1" max="10" step="0.1" value="1">
+        </div>
+
+        <div class="control-section">
+            <h3>📦 Move Content Blocks</h3>
+            <label>Select Block:</label>
+            <select id="blockSelect"></select>
+            
+            <label>Move to Column:</label>
+            <select id="targetColumn">
+                <option value="0">Column 1</option>
+                <option value="1">Column 2</option>
+                <option value="2">Column 3</option>
+                <option value="3">Column 4</option>
+            </select>
+            <button onclick="moveBlock()">Move Block</button>
+        </div>
+
+        <div class="control-section">
+            <h3>🖼️ Image Sizes</h3>
+            <div class="image-sliders" id="imageSliders"></div>
+        </div>
+    </div>
+
+    <!-- Poster Content -->
+    <div id="poster">
+        <!-- Header spanning all columns -->
+        <div class="header-block" style="width: calc(var(--column-width) * 4 + 90px);">
+            <img src="img/logo_ufsc_transparente_quadrado.png" alt="UFSC Logo">
+            <div class="header-text">
+                <div class="program">Programa de Pós-graduação em Ciência da Computação</div>
+                <div class="department">Departamento de Informática e Estatística - INE</div>
+            </div>
+            <img src="img/logo_ine_transparente_quadrado.png" alt="INE Logo">
+        </div>
+
+        <!-- Title spanning all columns -->
+        <div class="title-block" style="width: calc(var(--column-width) * 4 + 90px);">
+            <h1>Contagem de Salgadinhos Sortidos em Caixas Mistas</h1>
+            <div class="authors">
+                <span>Vicente Knobel Borges</span>
+                <span>•</span>
+                <span>Luiz Gustavo Coutinho Xavier</span>
+            </div>
+        </div>
+
+        <div class="bar-decoration" style="width: calc(var(--column-width) * 4 + 90px);"></div>
+
+        <!-- Four Columns -->
+        <div class="poster-columns">
+            <!-- Column 1 -->
+            <div class="column" id="column-0">
+                <div class="column-indicator">Column 1</div>
+                
+                <div class="content-block" data-block="desc">
+                    <h2>Descrição do Problema</h2>
+                    <p>O problema escolhido para atividade consiste na identificação de salgadinhos em caixas sortidas, adotando como exemplo encomendas de salgados produzidas por uma padaria local. Apesar de considerar a produção de um comércio específico, o problema estende-se a indústria de alimentos de modo geral, ao permitir a separação de encomendas de forma mais ágil assegurando controle de qualidade, especialmente em períodos de maior demanda de produção.</p>
+                    <p>Caixas sortidas são usualmente encomendadas com 4 ou 5 classes de salgados distintos, e possuem um tamanho padrão para conter um máximo de até 100 salgados.</p>
+                    <div class="highlight-box">
+                        <strong>Abordagens testadas:</strong> Pipeline de visão computacional clássica com segmentação por cor e operações morfológicas, e solução com deep learning usando RF-DETR com <strong>mAP@50:95 de 90,51%</strong>.
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="classic-title">
+                    <h2>Visão Computacional Clássica</h2>
+                    <p>Para o escopo do problema nesta etapa, considera-se a existência das seguintes classes:</p>
+                    <ul>
+                        <li>Croquete de carne</li>
+                        <li>Coxinha de frango</li>
+                        <li>Empada folhada</li>
+                        <li>Sanduíche colorido</li>
+                        <li>Sanduíche aberto (canapé)</li>
+                        <li>Canudinho</li>
+                    </ul>
+                    <div class="bar-thin"></div>
+                    <p>É importante destacar a similaridade entre classes de salgadinhos no que diz respeito a sua cor e formato. Croquetes de carne, apesar de majoritariamente marrons, possuem pigmentos pastéis da mesma cor das coxinhas. Coxinhas e empadas também possuem grande similaridade de formato e cor.</p>
+                </div>
+
+                <div class="content-block" data-block="dataset-images">
+                    <h3>Dataset</h3>
+                    <p>21 imagens capturadas em alta resolução (4032 × 3024) por câmera de celular.</p>
+                    <div class="image-grid">
+                        <img src="img/IMG_2426.jpeg" alt="Salgadinhos 1" data-img="dataset1">
+                        <img src="img/IMG_2432.jpeg" alt="Salgadinhos 2" data-img="dataset2">
+                        <img src="img/IMG_2435.jpeg" alt="Salgadinhos 3" data-img="dataset3">
+                        <img src="img/IMG_2441.jpeg" alt="Salgadinhos 4" data-img="dataset4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="column" id="column-1">
+                <div class="column-indicator">Column 2</div>
+
+                <div class="content-block" data-block="classic-solution">
+                    <h3>Solução com Visão Clássica</h3>
+                    <p>Foi implementado um pipeline simples de processamento de imagem utilizando algoritmos clássicos com o objetivo de identificar uma classe de salgadinhos por vez:</p>
+                    <ol style="font-size: calc(13px * var(--text-scale)); margin-left: 20px; line-height: 1.6;">
+                        <li><strong>Segmentação por cor:</strong> Máscara binária para valores HSV usando <code>cv2.inRange</code></li>
+                        <li><strong>Fechamento morfológico:</strong> Dilatação seguida de erosão para preencher buracos</li>
+                        <li><strong>Borramento bilateral:</strong> <code>cv2.bilateralFilter</code> para suavização</li>
+                        <li><strong>Detecção de bordas:</strong> Algoritmo de Canny</li>
+                        <li><strong>Contagem:</strong> Detecção de elipses nos objetos remanescentes</li>
+                    </ol>
+                </div>
+
+                <div class="content-block" data-block="pipeline-diagram">
+                    <div class="image-container">
+                        <img src="img/diagrama-simples.png" alt="Pipeline Diagram" data-img="pipeline">
+                        <div class="image-caption">Diagrama do pipeline de visão clássica</div>
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="classic-results">
+                    <h4>Resultados da Abordagem Clássica</h4>
+                    <p>Não foi possível isolar os salgadinhos desejados com acurácia satisfatória. Na tentativa de identificar croquetes, resquícios de outros elementos permaneciam após a segmentação. Melhores resultados obtidos com HSV [8, 130, 10] a [24, 180, 140].</p>
+                    <div class="image-grid">
+                        <img src="img/IMG_2426.jpeg" alt="Original" data-img="classic1">
+                        <img src="img/b.png" alt="Segmentação" data-img="classic2">
+                        <img src="img/c.png" alt="Fechamento" data-img="classic3">
+                        <img src="img/d.png" alt="Bordas" data-img="classic4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="column" id="column-2">
+                <div class="column-indicator">Column 3</div>
+
+                <div class="content-block" data-block="dl-title">
+                    <h2>Deep Learning</h2>
+                    <h3>Metodologia</h3>
+                    <p>O desenvolvimento seguiu cinco etapas:</p>
+                    <ol style="font-size: calc(13px * var(--text-scale)); margin-left: 20px; line-height: 1.6;">
+                        <li>Busca de imagens no Google</li>
+                        <li>Geração de novel view synthesis com Nano Banana Pro</li>
+                        <li>Labeling automático com SAM3</li>
+                        <li>Refinamento no Label Studio</li>
+                        <li>Treinamento com RF-DETR</li>
+                    </ol>
+                </div>
+
+                <div class="content-block" data-block="dataset-gen">
+                    <h4>Geração do Dataset</h4>
+                    <p>14 classes estabelecidas: Bolinha de queijo, Canapé, Canudo, Coxinha, Croquete, Empadinha, Enroladinho, Esfiha, Folhado, Pastelzinho, Pão de queijo, Quibe, Risoles e Sanduíche. 30 imagens por classe, priorizando fotos com múltiplos exemplares em ângulo top-down.</p>
+                    <div class="image-container">
+                        <img src="img/coxinhas_google.jpg" alt="Coxinhas Google" data-img="coxinhas">
+                        <div class="image-caption">Imagens de coxinhas selecionadas do Google</div>
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="novel-view">
+                    <h4>Novel View Synthesis</h4>
+                    <p>Modelo Nano Banana Pro da Google para gerar quatro variações: vista lateral, top-down no chão, top-down com iluminação noturna, e top-down na disposição original.</p>
+                    <div class="image-container">
+                        <img src="img/nanoBanana.jpg" alt="Nano Banana" data-img="nanoBanana">
+                        <div class="image-caption">Imagens geradas pelo Nano Banana Pro</div>
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="labeling">
+                    <h4>Labeling com SAM3</h4>
+                    <p>SAM3 para segmentação automática com prompts como "food" ou "snacks". Refinamento no Label Studio corrigindo classificações incorretas.</p>
+                    <div class="image-container">
+                        <img src="img/sam3_raw_bbox.png" alt="SAM3 Bboxes" data-img="sam3">
+                        <div class="image-caption">Bounding boxes geradas pelo SAM3</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="img/uso_label_studio.png" alt="Label Studio" data-img="labelstudio">
+                        <div class="image-caption">Interface de revisão no Label Studio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 4 -->
+            <div class="column" id="column-3">
+                <div class="column-indicator">Column 4</div>
+
+                <div class="content-block" data-block="model">
+                    <h3>Modelo RF-DETR</h3>
+                    <p>Selecionado por ser performante em sistemas com poucos recursos, de fácil implementação em Python, e open-source (Apache-2.0). Escolhido o <strong>RF-DETR Small</strong>.</p>
+                    <div class="image-container">
+                        <img src="img/RFDETR_COCO_map.png" alt="RF-DETR COCO" data-img="rfdetr">
+                        <div class="image-caption">Comparação de métricas mAP no COCO (Fonte: Roboflow)</div>
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="training">
+                    <h3>Resultados de Treinamento</h3>
+                    <div class="image-container">
+                        <img src="img/smallmonolabel.png" alt="Monolabel Training" data-img="mono">
+                        <div class="image-caption">Curvas de treinamento - modelo monolabel</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="img/smallmultilabel.png" alt="Multilabel Training" data-img="multi">
+                        <div class="image-caption">Curvas de treinamento - modelo multilabel</div>
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="metrics-mono">
+                    <div class="results-highlight">
+                        <h4>Modelo Monolabel</h4>
+                        <div class="metric-row">
+                            <span>mAP@50:95 (Teste)</span>
+                            <span class="metric-value">95,29%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>mAP@50 (Teste)</span>
+                            <span class="metric-value">98,64%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Precision</span>
+                            <span class="metric-value">97,45%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Recall</span>
+                            <span class="metric-value">97,00%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-block" data-block="metrics-multi">
+                    <div class="table-title">Métricas por Classe - Multilabel (Teste)</div>
+                    <table>
+ <thead>
+    <tr>
+      <th>Classe</th>
+      <th>mAP<br>@50:95 (Val)</th>
+      <th>mAP<br>@50:95 (Test)</th>
+      <th>Precision (Val)</th>
+      <th>Precision (Test)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bolinha de queijo</td>
+      <td>75,52%</td>
+      <td>86,90%</td>
+      <td>54,46%</td>
+      <td>85,54%</td>
+    </tr>
+    <tr>
+      <td>Canapé</td>
+      <td>94,18%</td>
+      <td>93,93%</td>
+      <td>92,86%</td>
+      <td>95,10%</td>
+    </tr>
+    <tr>
+      <td>Canudo</td>
+      <td>89,91%</td>
+      <td>95,30%</td>
+      <td>94,78%</td>
+      <td>99,35%</td>
+    </tr>
+    <tr>
+      <td>Coxinha</td>
+      <td>74,24%</td>
+      <td>89,85%</td>
+      <td>34,05%</td>
+      <td>90,83%</td>
+    </tr>
+    <tr>
+      <td>Croquete</td>
+      <td>94,39%</td>
+      <td>90,84%</td>
+      <td>94,59%</td>
+      <td>89,07%</td>
+    </tr>
+    <tr>
+      <td>Empadinha</td>
+      <td>93,93%</td>
+      <td>96,29%</td>
+      <td>97,93%</td>
+      <td>100,00%</td>
+    </tr>
+    <tr>
+      <td>Enroladinho</td>
+      <td>91,87%</td>
+      <td>87,96%</td>
+      <td>97,80%</td>
+      <td>98,05%</td>
+    </tr>
+    <tr>
+      <td>Esfiha</td>
+      <td>94,57%</td>
+      <td>98,85%</td>
+      <td>99,22%</td>
+      <td>99,53%</td>
+    </tr>
+    <tr>
+      <td>Folhado</td>
+      <td>97,69%</td>
+      <td>92,49%</td>
+      <td>100,00%</td>
+      <td>91,04%</td>
+    </tr>
+    <tr>
+      <td>Pastelzinho</td>
+      <td>89,68%</td>
+      <td>91,42%</td>
+      <td>95,33%</td>
+      <td>96,03%</td>
+    </tr>
+    <tr>
+      <td>Pão de queijo</td>
+      <td>96,18%</td>
+      <td>95,09%</td>
+      <td>98,45%</td>
+      <td>100,00%</td>
+    </tr>
+    <tr>
+      <td>Quibe</td>
+      <td>91,01%</td>
+      <td>62,63%</td>
+      <td>88,11%</td>
+      <td>51,04%</td>
+    </tr>
+    <tr>
+      <td>Risoles</td>
+      <td>99,41%</td>
+      <td>98,11%</td>
+      <td>100,00%</td>
+      <td>98,11%</td>
+    </tr>
+    <tr>
+      <td>Sanduíche</td>
+      <td>74,31%</td>
+      <td>87,43%</td>
+      <td>78,11%</td>
+      <td>88,66%</td>
+    </tr>
+    <tr>
+      <td><strong>Média</strong></td>
+      <td><strong>89,78%</strong></td>
+      <td><strong>90,51%</strong></td>
+      <td><strong>87,55%</strong></td>
+      <td><strong>91,60%</strong></td>
+    </tr>
+  </tbody>
+                    </table>
+                </div>
+
+                <div class="content-block" data-block="discussion">
+                    <h3>Discussão</h3>
+                    <p>O modelo monolabel apresentou convergência rápida e estável, com métricas superiores a 94%. O modelo multilabel mostrou comportamento mais complexo.</p>
+                    <div class="highlight-box">
+                        <strong>Alto desempenho:</strong> Risoles (99,41%), Folhado (97,69%), Pão de queijo (96,18%), Esfiha (94,57%)
+                    </div>
+                    <div class="highlight-box" style="border-left-color: var(--color-dark);">
+                        <strong>Desafios:</strong> Quibe apresentou degradação significativa no teste (62,63%). As oscilações refletem dificuldade em generalizar entre 14 categorias visualmente similares.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bar-decoration" style="width: calc(var(--column-width) * 4 + 90px); margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        // Initialize controls
+        const poster = document.getElementById('poster');
+        const columns = document.querySelectorAll('.column');
+        const blocks = document.querySelectorAll('.content-block');
+        const blockSelect = document.getElementById('blockSelect');
+        const imageSliders = document.getElementById('imageSliders');
+
+        // Populate block selector
+        blocks.forEach((block, i) => {
+            const option = document.createElement('option');
+            option.value = block.dataset.block;
+            option.textContent = block.dataset.block;
+            blockSelect.appendChild(option);
+        });
+
+        // Create image sliders
+        const images = document.querySelectorAll('#poster img[data-img]');
+        images.forEach(img => {
+            const container = document.createElement('div');
+            container.className = 'image-slider-item';
+            container.innerHTML = `
+                <div class="image-slider-label">${img.dataset.img}</div>
+                <input type="range" min="10" max="100" value="100" 
+                       onchange="setImageSize('${img.dataset.img}', this.value)">
+                <div class="value-display"><span id="imgval-${img.dataset.img}">100</span>%</div>
+            `;
+            imageSliders.appendChild(container);
+        });
+
+        // Column width control
+        document.getElementById('colWidth').addEventListener('input', function() {
+            const val = this.value;
+            document.getElementById('colWidthVal').textContent = val;
+            document.documentElement.style.setProperty('--column-width', val + 'px');
+            
+            // Update header and title widths
+            const totalWidth = (parseInt(val) * 4 + 90) + 'px';
+            document.querySelector('.header-block').style.width = totalWidth;
+            document.querySelector('.title-block').style.width = totalWidth;
+            document.querySelectorAll('.bar-decoration').forEach(bar => bar.style.width = totalWidth);
+            
+            verifyColumnWidths();
+        });
+
+        // Text scale control
+        document.getElementById('textScale').addEventListener('input', function() {
+            document.getElementById('textScaleVal').textContent = parseFloat(this.value).toFixed(1);
+            document.documentElement.style.setProperty('--text-scale', this.value);
+        });
+
+        // Title scale control
+        document.getElementById('titleScale').addEventListener('input', function() {
+            document.getElementById('titleScaleVal').textContent = parseFloat(this.value).toFixed(1);
+            document.documentElement.style.setProperty('--title-scale', this.value);
+        });
+
+        // Move block function
+        function moveBlock() {
+            const blockName = blockSelect.value;
+            const targetCol = document.getElementById('targetColumn').value;
+            const block = document.querySelector(`[data-block="${blockName}"]`);
+            const target = document.getElementById(`column-${targetCol}`);
+            
+            if (block && target) {
+                target.appendChild(block);
+                verifyColumnWidths();
+            }
+        }
+
+        // Set image size function
+        function setImageSize(imgId, value) {
+            const img = document.querySelector(`[data-img="${imgId}"]`);
+            if (img) {
+                img.style.width = value + '%';
+                document.getElementById(`imgval-${imgId}`).textContent = value;
+            }
+        }
+
+        // Verify column widths
+        function verifyColumnWidths() {
+            const widths = [];
+            columns.forEach((col, i) => {
+                const computed = window.getComputedStyle(col).width;
+                widths.push({col: i+1, width: computed});
+            });
+            
+            const allSame = widths.every(w => w.width === widths[0].width);
+            console.log('Column widths:', widths, 'All same:', allSame);
+            
+            if (!allSame) {
+                console.warn('Column widths are not equal! Forcing...');
+                const targetWidth = getComputedStyle(document.documentElement).getPropertyValue('--column-width');
+                columns.forEach(col => {
+                    col.style.width = targetWidth;
+                    col.style.minWidth = targetWidth;
+                    col.style.maxWidth = targetWidth;
+                });
+            }
+        }
+
+        // Drag and drop for blocks
+        blocks.forEach(block => {
+            block.draggable = true;
+            
+            block.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', block.dataset.block);
+                block.classList.add('dragging');
+            });
+            
+            block.addEventListener('dragend', () => {
+                block.classList.remove('dragging');
+            });
+        });
+
+        columns.forEach(col => {
+            col.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+            
+            col.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const blockName = e.dataTransfer.getData('text/plain');
+                const block = document.querySelector(`[data-block="${blockName}"]`);
+                if (block) {
+                    col.appendChild(block);
+                    verifyColumnWidths();
+                }
+            });
+        });
+
+        // Initial verification
+        verifyColumnWidths();
+    </script>
+</body>
+</html>
